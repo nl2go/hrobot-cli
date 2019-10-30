@@ -15,6 +15,7 @@ func NewRootCommand(logger *log.Logger, cfg *config.Config) *cobra.Command {
 	}
 
 	rootCmd.AddCommand(NewServerCmd(logger, cfg))
+	rootCmd.AddCommand(NewKeyCmd(logger, cfg))
 
 	return rootCmd
 }

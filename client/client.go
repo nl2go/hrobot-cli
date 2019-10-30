@@ -64,3 +64,22 @@ func (c *Client) ServerGetList() (*models.ServerListResponse, error) {
 	}
 	return &data, nil
 }
+
+func (c *Client) KeyGetList() (*models.KeyGetListResponse, error) {
+	url := baseURL + "/key"
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	bytes, err := c.doRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var data models.KeyGetListResponse
+	err = json.Unmarshal(bytes, &data)
+	if err != nil {
+		return nil, err
+	}
+	return &data, nil
+}
