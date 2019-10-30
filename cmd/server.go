@@ -225,6 +225,53 @@ func NewServerSetNamesEmptyCmd(logger *log.Logger, cfg *config.Config) *cobra.Co
 	}
 }
 
+func NewServerGenerateAnsibleInventoryCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
+	return &cobra.Command{
+		Use:   "server:gen-ansible-inv",
+		Short: "Generates ansible inventory from server list",
+		Long:  "Generates ansible inventory from servers in the hetzner account",
+		Run: func(cmd *cobra.Command, args []string) {
+			robotClient := client.NewBasicAuthClient(cfg.User, cfg.Password)
+			servers, err := robotClient.ServerGetList()
+			if err != nil {
+				logger.Errorln(err)
+				return
+			}
+
+			invDcs := make(map[string][]string)
+			invGroups := make(map[string][]string)
+
+			fmt.Println("[servers]")
+			for _, server := range servers {
+				dc := strings.Split(server.Dc, "-")
+				dcLocation := strings.ToLower(dc[0])
+
+				srvInf := strings.Split(server.ServerName, "-")
+				hostGroup := srvInf[0] // first token should define host group (=purpose) of the host, i.e. mongodb
+
+				invDcs[dcLocation] = append(invDcs[dcLocation], server.ServerName)
+				invGroups[hostGroup] = append(invGroups[hostGroup], server.ServerName)
+
+				fmt.Printf("%s ansible_host=%s\n", server.ServerName, server.ServerIP)
+			}
+
+			for invGroup, groupServers := range invGroups {
+				fmt.Printf("\n[%s]\n", invGroup)
+				for _, groupServer := range groupServers {
+					fmt.Println(groupServer)
+				}
+			}
+
+			for invDc, dcServers := range invDcs {
+				fmt.Printf("\n[dc-%s]\n", invDc)
+				for _, dcServer := range dcServers {
+					fmt.Println(dcServer)
+				}
+			}
+		},
+	}
+}
+
 func generateServerName(server models.Server, prefix string) string {
 	return fmt.Sprintf("%s-%s-%s-%d", prefix, strings.ToLower(server.Product), strings.ToLower(server.Dc), server.ServerNumber)
 }
