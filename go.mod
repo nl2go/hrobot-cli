@@ -7,6 +7,7 @@ require (
 	github.com/hetznercloud/hcloud-go v1.16.0
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/manifoldco/promptui v0.3.2
 	github.com/mattn/go-runewidth v0.0.5 // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.5
