@@ -14,8 +14,9 @@ func NewRootCommand(logger *log.Logger, cfg *config.Config) *cobra.Command {
 		Short: "CLI application for the hetzner robot API",
 	}
 
-	rootCmd.AddCommand(NewServerCmd(logger, cfg))
-	rootCmd.AddCommand(NewKeyCmd(logger, cfg))
+	rootCmd.AddCommand(NewServerGetListCmd(logger, cfg))
+	rootCmd.AddCommand(NewServerGetCmd(logger, cfg))
+	rootCmd.AddCommand(NewKeyGetListCmd(logger, cfg))
 
 	return rootCmd
 }

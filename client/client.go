@@ -46,7 +46,7 @@ func (c *Client) doRequest(req *http.Request) ([]byte, error) {
 	return body, nil
 }
 
-func (c *Client) ServerGetList() (*models.ServerListResponse, error) {
+func (c *Client) ServerGetList() ([]models.Server, error) {
 	url := baseURL + "/server"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -57,15 +57,41 @@ func (c *Client) ServerGetList() (*models.ServerListResponse, error) {
 		return nil, err
 	}
 
-	var data models.ServerListResponse
-	err = json.Unmarshal(bytes, &data)
+	var servers []models.ServerResponse
+	err = json.Unmarshal(bytes, &servers)
 	if err != nil {
 		return nil, err
 	}
-	return &data, nil
+
+	var data []models.Server
+	for _, server := range servers {
+		data = append(data, server.Server)
+	}
+
+	return data, nil
 }
 
-func (c *Client) KeyGetList() (*models.KeyGetListResponse, error) {
+func (c *Client) ServerGet(ip string) (*models.Server, error) {
+	url := fmt.Sprintf(baseURL+"/server/%s", ip)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	bytes, err := c.doRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var serverResp models.ServerResponse
+	err = json.Unmarshal(bytes, &serverResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return &serverResp.Server, nil
+}
+
+func (c *Client) KeyGetList() ([]models.Key, error) {
 	url := baseURL + "/key"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -76,10 +102,16 @@ func (c *Client) KeyGetList() (*models.KeyGetListResponse, error) {
 		return nil, err
 	}
 
-	var data models.KeyGetListResponse
-	err = json.Unmarshal(bytes, &data)
+	var keys []models.KeyResponse
+	err = json.Unmarshal(bytes, &keys)
 	if err != nil {
 		return nil, err
 	}
-	return &data, nil
+
+	var data []models.Key
+	for _, key := range keys {
+		data = append(data, key.Key)
+	}
+
+	return data, nil
 }

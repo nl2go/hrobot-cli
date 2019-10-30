@@ -11,7 +11,7 @@ import (
 	"gitlab.com/nl2go/hrobot-cli/config"
 )
 
-func NewKeyCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
+func NewKeyGetListCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
 	return &cobra.Command{
 		Use:   "key:get-list",
 		Short: "Print list of ssh keys",
@@ -19,7 +19,6 @@ func NewKeyCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			robotClient := client.NewBasicAuthClient(cfg.User, cfg.Password)
 			keys, err := robotClient.KeyGetList()
-
 			if err != nil {
 				logger.Errorln(err)
 				return
@@ -30,16 +29,16 @@ func NewKeyCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
 
 			t.AppendHeader(table.Row{"name", "type", "size", "fingerprint"})
 
-			for _, key := range *keys {
+			for _, key := range keys {
 				t.AppendRow(table.Row{
-					key.Key.Name,
-					key.Key.Type,
-					key.Key.Size,
-					key.Key.Fingerprint,
+					key.Name,
+					key.Type,
+					key.Size,
+					key.Fingerprint,
 				})
 			}
 
-			t.AppendFooter(table.Row{"", "", "Total", len(*keys)})
+			t.AppendFooter(table.Row{"", "", "Total", len(keys)})
 			t.Render()
 		},
 	}

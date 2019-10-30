@@ -1,8 +1,9 @@
 package models
 
-type KeyGetListResponse []struct {
+type KeyResponse struct {
 	Key Key `json:"key"`
 }
+
 type Key struct {
 	Name        string `json:"name"`
 	Fingerprint string `json:"fingerprint"`
