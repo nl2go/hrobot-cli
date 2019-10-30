@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"gitlab.com/nl2go/hrobot-cli/client"
+	"gitlab.com/nl2go/hrobot-cli/client/models"
 	"gitlab.com/nl2go/hrobot-cli/config"
 )
 
@@ -95,12 +96,12 @@ func NewServerGetCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
 
 			choosenIdx, _, err := prompt.Run()
 			if err != nil {
-				fmt.Printf("Prompt failed %v\n", err)
+				logger.Errorln("Prompt failed: ", err)
 				return
 			}
 
 			choosenServer := servers[choosenIdx]
-			fmt.Println("You choose: ", choosenServer.ServerIP)
+			fmt.Println("Chosen server: ", choosenServer.ServerIP)
 
 			server, err := robotClient.ServerGet(choosenServer.ServerIP)
 			if err != nil {
@@ -124,4 +125,106 @@ func NewServerGetCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
 			t.Render()
 		},
 	}
+}
+
+func NewServerSetNamesEmptyCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
+	return &cobra.Command{
+		Use:   "server:set-names-empty",
+		Short: "Sets name for all servers with empty name",
+		Long:  "Sets name for all servers with empty name in the hetzner account",
+		Run: func(cmd *cobra.Command, args []string) {
+			robotClient := client.NewBasicAuthClient(cfg.User, cfg.Password)
+			servers, err := robotClient.ServerGetList()
+			if err != nil {
+				logger.Errorln(err)
+				return
+			}
+
+			var serversEmptyName []models.Server
+			for _, server := range servers {
+				if server.ServerName == "" {
+					serversEmptyName = append(serversEmptyName, server)
+				}
+			}
+
+			if len(serversEmptyName) <= 0 {
+				logger.Println("No server with empty name found. Exiting.")
+				return
+			}
+
+			t := table.NewWriter()
+			t.SetOutputMirror(os.Stdout)
+
+			t.AppendHeader(table.Row{"id", "ip", "datacenter"})
+
+			for _, server := range serversEmptyName {
+				t.AppendRow(table.Row{
+					server.ServerNumber,
+					server.ServerIP,
+					server.Dc,
+				})
+			}
+
+			t.AppendFooter(table.Row{"", "Total", len(serversEmptyName)})
+			t.SetCaption("Servers with empty names")
+			t.Render()
+
+			prompt := promptui.Prompt{
+				Label: "Add server name prefix",
+			}
+
+			prefix, err := prompt.Run()
+
+			if err != nil {
+				logger.Errorln("Prompt failed: ", err)
+				return
+			}
+
+			fmt.Println("Chosen server prefix:", prefix)
+
+			tNames := table.NewWriter()
+			tNames.SetOutputMirror(os.Stdout)
+
+			tNames.AppendHeader(table.Row{"id", "ip", "datacenter", "new name"})
+
+			for _, server := range serversEmptyName {
+				tNames.AppendRow(table.Row{
+					server.ServerNumber,
+					server.ServerIP,
+					server.Dc,
+					generateServerName(server, prefix),
+				})
+			}
+
+			tNames.AppendFooter(table.Row{"", "", "Total", len(serversEmptyName)})
+			tNames.SetCaption("Servers with generated names")
+			tNames.Render()
+
+			confirmPrompt := promptui.Prompt{
+				Label:     fmt.Sprintf("Really set names as shown above for %d servers", len(serversEmptyName)),
+				IsConfirm: true,
+			}
+
+			confirmRes, err := confirmPrompt.Run()
+			if err != nil {
+				logger.Errorln("Prompt failed: ", err)
+				return
+			}
+
+			fmt.Println("Your choice:", confirmRes)
+
+			for _, server := range serversEmptyName {
+				fmt.Println("Set server name for", server.ServerIP, "to", generateServerName(server, prefix), "...")
+				err := robotClient.ServerSetName(server.ServerIP, generateServerName(server, prefix))
+				if err != nil {
+					logger.Errorln(err)
+					continue
+				}
+			}
+		},
+	}
+}
+
+func generateServerName(server models.Server, prefix string) string {
+	return fmt.Sprintf("%s-%s-%s-%d", prefix, strings.ToLower(server.Product), strings.ToLower(server.Dc), server.ServerNumber)
 }

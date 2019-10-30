@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	neturl "net/url"
+	"strings"
 
 	"gitlab.com/nl2go/hrobot-cli/client/models"
 )
@@ -89,6 +91,22 @@ func (c *Client) ServerGet(ip string) (*models.Server, error) {
 	}
 
 	return &serverResp.Server, nil
+}
+
+func (s *Client) ServerSetName(ip, name string) error {
+	url := fmt.Sprintf(baseURL+"/server/%s", ip)
+
+	formData := neturl.Values{}
+	formData.Set("server_name", name)
+
+	req, err := http.NewRequest("POST", url, strings.NewReader(formData.Encode()))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	_, err = s.doRequest(req)
+	return err
 }
 
 func (c *Client) KeyGetList() ([]models.Key, error) {
