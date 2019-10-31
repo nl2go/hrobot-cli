@@ -17,7 +17,7 @@ import (
 
 func NewServerGetListCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
 	return &cobra.Command{
-		Use:   "server:get-list",
+		Use:   "server:list",
 		Short: "Print list of servers",
 		Long:  "Print list of servers in the hetzner account",
 		Run: func(cmd *cobra.Command, args []string) {

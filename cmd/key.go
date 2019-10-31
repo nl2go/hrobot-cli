@@ -13,7 +13,7 @@ import (
 
 func NewKeyGetListCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
 	return &cobra.Command{
-		Use:   "key:get-list",
+		Use:   "key:list",
 		Short: "Print list of ssh keys",
 		Long:  "Print list of ssh keys in the hetzner account",
 		Run: func(cmd *cobra.Command, args []string) {

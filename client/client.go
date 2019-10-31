@@ -133,3 +133,28 @@ func (c *Client) KeyGetList() ([]models.Key, error) {
 
 	return data, nil
 }
+
+func (c *Client) IPGetList() ([]models.IP, error) {
+	url := baseURL + "/ip"
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	bytes, err := c.doRequest(req)
+	if err != nil {
+		return nil, err
+	}
+
+	var ips []models.IPResponse
+	err = json.Unmarshal(bytes, &ips)
+	if err != nil {
+		return nil, err
+	}
+
+	var data []models.IP
+	for _, ip := range ips {
+		data = append(data, ip.IP)
+	}
+
+	return data, nil
+}
