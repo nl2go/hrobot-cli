@@ -80,6 +80,7 @@ func NewServerGetCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
 			choosenServer := servers[choosenIdx]
 			fmt.Println("Chosen server: ", choosenServer.ServerIP)
 
+			// additional get as getting a single server returns more data
 			server, err := robotClient.ServerGet(choosenServer.ServerIP)
 			if err != nil {
 				logger.Errorln(err)
@@ -324,9 +325,9 @@ func getServerSearcher(servers []models.Server) func(string, int) bool {
 func getServerSelectTemplates() *promptui.SelectTemplates {
 	return &promptui.SelectTemplates{
 		Label:    "{{ . }}?",
-		Active:   "→ {{ .ServerName | cyan }} ({{ .ServerIP | red }} - {{ .Product | blue }} - {{ .Dc | yellow }})",
-		Inactive: "  {{ .ServerName | cyan }} ({{ .ServerIP | red }} - {{ .Product | blue }} - {{ .Dc | yellow }})",
-		Selected: "→ {{ .ServerName | red | cyan }}",
+		Active:   "→ {{ .ServerName | green }} ({{ .ServerIP | yellow }} - {{ .Product | yellow }} - {{ .Dc | yellow }})",
+		Inactive: "  {{ .ServerName | cyan }} ({{ .ServerIP | red }} - {{ .Product | blue }} - {{ .Dc | green }})",
+		Selected: "→ {{ .ServerName | cyan }}",
 		Details: `
 	--------- Selected server ----------
 	{{ "Server name:" | faint }}  {{ .ServerName }}

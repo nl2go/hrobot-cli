@@ -21,6 +21,8 @@ func NewRootCommand(logger *log.Logger, cfg *config.Config) *cobra.Command {
 	rootCmd.AddCommand(NewServerGenerateAnsibleInventoryCmd(logger, cfg))
 	rootCmd.AddCommand(NewKeyGetListCmd(logger, cfg))
 	rootCmd.AddCommand(NewIPGetListCmd(logger, cfg))
+	rootCmd.AddCommand(NewRdnsGetListCmd(logger, cfg))
+	rootCmd.AddCommand(NewRdnsGetCmd(logger, cfg))
 
 	return rootCmd
 }
