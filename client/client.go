@@ -109,6 +109,18 @@ func (s *Client) ServerSetName(ip, name string) error {
 	return err
 }
 
+func (s *Client) ServerReverse(ip string) error {
+	url := fmt.Sprintf(baseURL+"/server/%s/reversal", ip)
+
+	req, err := http.NewRequest("POST", url, nil)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.doRequest(req)
+	return err
+}
+
 func (c *Client) KeyGetList() ([]models.Key, error) {
 	url := baseURL + "/key"
 	req, err := http.NewRequest("GET", url, nil)

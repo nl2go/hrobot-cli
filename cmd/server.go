@@ -31,7 +31,7 @@ func NewServerGetListCmd(logger *log.Logger, cfg *config.Config) *cobra.Command 
 			t := table.NewWriter()
 			t.SetOutputMirror(os.Stdout)
 
-			t.AppendHeader(table.Row{"id", "ip", "name", "datacenter"})
+			t.AppendHeader(table.Row{"id", "ip", "name", "datacenter", "cancelled"})
 
 			for _, server := range servers {
 				t.AppendRow(table.Row{
@@ -39,10 +39,11 @@ func NewServerGetListCmd(logger *log.Logger, cfg *config.Config) *cobra.Command 
 					server.ServerIP,
 					server.ServerName,
 					server.Dc,
+					server.Cancelled,
 				})
 			}
 
-			t.AppendFooter(table.Row{"", "", "Total", len(servers)})
+			t.AppendFooter(table.Row{"", "", "", "Total", len(servers)})
 			t.Render()
 		},
 	}
@@ -99,6 +100,61 @@ func NewServerGetCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
 			t.AppendRow(table.Row{"paid until", server.PaidUntil})
 
 			t.Render()
+		},
+	}
+}
+
+func NewServerReversalCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
+	return &cobra.Command{
+		Use:   "server:reverse",
+		Short: "Revert single server order",
+		Long: `Revert single server order in hetzner account
+		server can be chosen interactively`,
+		Run: func(cmd *cobra.Command, args []string) {
+			robotClient := client.NewBasicAuthClient(cfg.User, cfg.Password)
+			servers, err := robotClient.ServerGetList()
+			if err != nil {
+				logger.Errorln(err)
+				return
+			}
+
+			prompt := promptui.Select{
+				Label:     "Select server",
+				Items:     servers,
+				Searcher:  getServerSearcher(servers),
+				Size:      10,
+				Templates: getServerSelectTemplates(),
+			}
+
+			choosenIdx, _, err := prompt.Run()
+			if err != nil {
+				logger.Errorln("Prompt failed: ", err)
+				return
+			}
+
+			choosenServer := servers[choosenIdx]
+			fmt.Println("Chosen server: ", choosenServer.ServerIP)
+
+			confirmPrompt := promptui.Prompt{
+				Label:     fmt.Sprintf("Really reverse server %s (%s) ", choosenServer.ServerName, choosenServer.ServerIP),
+				IsConfirm: true,
+			}
+
+			confirmRes, err := confirmPrompt.Run()
+			if err != nil {
+				logger.Errorln("Prompt failed: ", err)
+				return
+			}
+
+			fmt.Println("Your choice:", confirmRes)
+
+			reverseErr := robotClient.ServerReverse(choosenServer.ServerIP)
+			if reverseErr != nil {
+				logger.Errorln("Error while reversing server:", reverseErr)
+				return
+			}
+
+			fmt.Println("Server reversed successfully.")
 		},
 	}
 }
