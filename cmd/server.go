@@ -62,36 +62,12 @@ func NewServerGetCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
 				return
 			}
 
-			templates := &promptui.SelectTemplates{
-				Label:    "{{ . }}?",
-				Active:   "→ {{ .ServerName | cyan }} ({{ .ServerIP | red }} - {{ .Product | blue }} - {{ .Dc | yellow }})",
-				Inactive: "  {{ .ServerName | cyan }} ({{ .ServerIP | red }} - {{ .Product | blue }} - {{ .Dc | yellow }})",
-				Selected: "→ {{ .ServerName | red | cyan }}",
-				Details: `
-			--------- Selected server ----------
-			{{ "Server name:" | faint }}  {{ .ServerName }}
-			{{ "IP:" | faint }}	          {{ .ServerIP }}
-			{{ "Product:" | faint }}	  {{ .Product }}
-			{{ "Datacenter:" | faint }}	  {{ .Dc }}`,
-			}
-
-			searcher := func(input string, index int) bool {
-				server := servers[index]
-				name := strings.Replace(strings.ToLower(server.ServerName), " ", "", -1)
-				ip := strings.Replace(strings.ToLower(server.ServerIP), " ", "", -1)
-				product := strings.Replace(strings.ToLower(server.Product), " ", "", -1)
-				dc := strings.Replace(strings.ToLower(server.Dc), " ", "", -1)
-				input = strings.Replace(strings.ToLower(input), " ", "", -1)
-
-				return strings.Contains(name, input) || strings.Contains(ip, input) || strings.Contains(product, input) || strings.Contains(dc, input)
-			}
-
 			prompt := promptui.Select{
 				Label:     "Select server",
 				Items:     servers,
-				Searcher:  searcher,
+				Searcher:  getServerSearcher(servers),
 				Size:      10,
-				Templates: templates,
+				Templates: getServerSelectTemplates(),
 			}
 
 			choosenIdx, _, err := prompt.Run()
@@ -274,4 +250,32 @@ func NewServerGenerateAnsibleInventoryCmd(logger *log.Logger, cfg *config.Config
 
 func generateServerName(server models.Server, prefix string) string {
 	return fmt.Sprintf("%s-%s-%s-%d", prefix, strings.ToLower(server.Product), strings.ToLower(server.Dc), server.ServerNumber)
+}
+
+func getServerSearcher(servers []models.Server) func(string, int) bool {
+	return func(input string, index int) bool {
+		server := servers[index]
+		name := strings.Replace(strings.ToLower(server.ServerName), " ", "", -1)
+		ip := strings.Replace(strings.ToLower(server.ServerIP), " ", "", -1)
+		product := strings.Replace(strings.ToLower(server.Product), " ", "", -1)
+		dc := strings.Replace(strings.ToLower(server.Dc), " ", "", -1)
+		input = strings.Replace(strings.ToLower(input), " ", "", -1)
+
+		return strings.Contains(name, input) || strings.Contains(ip, input) || strings.Contains(product, input) || strings.Contains(dc, input)
+	}
+}
+
+func getServerSelectTemplates() *promptui.SelectTemplates {
+	return &promptui.SelectTemplates{
+		Label:    "{{ . }}?",
+		Active:   "→ {{ .ServerName | cyan }} ({{ .ServerIP | red }} - {{ .Product | blue }} - {{ .Dc | yellow }})",
+		Inactive: "  {{ .ServerName | cyan }} ({{ .ServerIP | red }} - {{ .Product | blue }} - {{ .Dc | yellow }})",
+		Selected: "→ {{ .ServerName | red | cyan }}",
+		Details: `
+	--------- Selected server ----------
+	{{ "Server name:" | faint }}  {{ .ServerName }}
+	{{ "IP:" | faint }}	          {{ .ServerIP }}
+	{{ "Product:" | faint }}	  {{ .Product }}
+	{{ "Datacenter:" | faint }}	  {{ .Dc }}`,
+	}
 }
