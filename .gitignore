@@ -1,2 +1,3 @@
 hrobot-cli
 coverage.out
+*.env

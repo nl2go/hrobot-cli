@@ -10,7 +10,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"gitlab.com/nl2go/hrobot-cli/client/models"
+	"gitlab.com/newsletter2go/hrobot-go/models"
 )
 
 func (app *RobotApp) NewServerGetListCmd() *cobra.Command {

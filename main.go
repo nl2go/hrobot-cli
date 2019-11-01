@@ -6,8 +6,8 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	log "github.com/sirupsen/logrus"
 
-	"gitlab.com/nl2go/hrobot-cli/cmd"
-	"gitlab.com/nl2go/hrobot-cli/config"
+	"gitlab.com/newsletter2go/hrobot-cli/cmd"
+	"gitlab.com/newsletter2go/hrobot-cli/config"
 )
 
 func main() {

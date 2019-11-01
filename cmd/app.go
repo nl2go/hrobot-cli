@@ -5,8 +5,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"gitlab.com/nl2go/hrobot-cli/client"
-	"gitlab.com/nl2go/hrobot-cli/config"
+	"gitlab.com/newsletter2go/hrobot-go"
+	"gitlab.com/newsletter2go/hrobot-cli/config"
 )
 
 const version = "1.0.0"
