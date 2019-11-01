@@ -227,7 +227,7 @@ func (app *RobotApp) NewServerSetNameCmd() *cobra.Command {
 					}
 
 					if selectedBefore {
-						app.logger.Infof("Server %s was selected already.")
+						app.logger.Infof("Server %s was selected already.", choosenServer.ServerIP)
 					} else {
 						choosenServers = append(choosenServers, choosenServer)
 						// remove chosen server from select list = re-slicing
