@@ -142,7 +142,7 @@ func (app *RobotApp) NewServerReversalCmd() *cobra.Command {
 				return
 			}
 
-			reverseErr := app.client.ServerReverse(choosenServer.ServerIP)
+			_, reverseErr := app.client.ServerReverse(choosenServer.ServerIP)
 			if reverseErr != nil {
 				app.logger.Errorln("Error while reversing server:", reverseErr)
 				return
@@ -297,7 +297,12 @@ func (app *RobotApp) NewServerSetNameCmd() *cobra.Command {
 
 			for _, server := range choosenServers {
 				color.Cyan(fmt.Sprint("Set server name for ", server.ServerIP, " to ", generateServerName(server, prefix), " ..."))
-				err := app.client.ServerSetName(server.ServerIP, generateServerName(server, prefix))
+
+				input := &models.ServerSetNameInput{
+					Name: generateServerName(server, prefix),
+				}
+
+				_, err := app.client.ServerSetName(server.ServerIP, input)
 				if err != nil {
 					app.logger.Errorln(err)
 					continue
