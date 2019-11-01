@@ -4,23 +4,18 @@ import (
 	"os"
 
 	"github.com/jedib0t/go-pretty/table"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-
-	"gitlab.com/nl2go/hrobot-cli/client"
-	"gitlab.com/nl2go/hrobot-cli/config"
 )
 
-func NewKeyGetListCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
+func (app *RobotApp) NewKeyGetListCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "key:list",
 		Short: "Print list of ssh keys",
 		Long:  "Print list of ssh keys in the hetzner account",
 		Run: func(cmd *cobra.Command, args []string) {
-			robotClient := client.NewBasicAuthClient(cfg.User, cfg.Password)
-			keys, err := robotClient.KeyGetList()
+			keys, err := app.client.KeyGetList()
 			if err != nil {
-				logger.Errorln(err)
+				app.logger.Errorln(err)
 				return
 			}
 

@@ -19,9 +19,8 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	rootCmd := cmd.NewRootCommand(log.StandardLogger(), &cfg)
-	rootCmd.SetErr(log.StandardLogger().Out)
-	if err := rootCmd.Execute(); err != nil {
+	hrobotApp := cmd.NewRobotApp(log.StandardLogger(), &cfg)
+	if err := hrobotApp.Run(); err != nil {
 		log.Errorln(err)
 		os.Exit(1)
 	}

@@ -7,24 +7,20 @@ import (
 
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/manifoldco/promptui"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
-	"gitlab.com/nl2go/hrobot-cli/client"
 	"gitlab.com/nl2go/hrobot-cli/client/models"
-	"gitlab.com/nl2go/hrobot-cli/config"
 )
 
-func NewRdnsGetListCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
+func (app *RobotApp) NewRdnsGetListCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "rdns:list",
 		Short: "Print list of reverse DNS entries",
 		Long:  "Print list of reverse DNS entries in the hetzner account",
 		Run: func(cmd *cobra.Command, args []string) {
-			robotClient := client.NewBasicAuthClient(cfg.User, cfg.Password)
-			rdnsList, err := robotClient.RDnsGetList()
+			rdnsList, err := app.client.RDnsGetList()
 			if err != nil {
-				logger.Errorln(err)
+				app.logger.Errorln(err)
 				return
 			}
 
@@ -46,17 +42,16 @@ func NewRdnsGetListCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
 	}
 }
 
-func NewRdnsGetCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
+func (app *RobotApp) NewRdnsGetCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "rdns:get",
 		Short: "Print single reverse DNS entry",
 		Long: `Print details of single reverse DNS entry in hetzner account
 		reverse DNS entry can be chosen interactively`,
 		Run: func(cmd *cobra.Command, args []string) {
-			robotClient := client.NewBasicAuthClient(cfg.User, cfg.Password)
-			rDnsList, err := robotClient.RDnsGetList()
+			rDnsList, err := app.client.RDnsGetList()
 			if err != nil {
-				logger.Errorln(err)
+				app.logger.Errorln(err)
 				return
 			}
 
@@ -71,7 +66,7 @@ func NewRdnsGetCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
 
 			choosenIdx, _, err := prompt.Run()
 			if err != nil {
-				logger.Errorln("Prompt failed: ", err)
+				app.logger.Errorln("Prompt failed: ", err)
 				return
 			}
 

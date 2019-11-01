@@ -12,25 +12,35 @@ import (
 )
 
 const baseURL string = "https://robot-ws.your-server.de"
-
-const Version = "1.0.0"
-
-const UserAgent = "hrobot-cli/" + Version
+const version = "1.0.0"
+const userAgent = "hrobot-client/" + version
 
 type Client struct {
-	Username string
-	Password string
+	Username  string
+	Password  string
+	baseURL   string
+	userAgent string
 }
 
-func NewBasicAuthClient(username, password string) *Client {
+func NewBasicAuthClient(username, password string) RobotClient {
 	return &Client{
-		Username: username,
-		Password: password,
+		Username:  username,
+		Password:  password,
+		baseURL:   baseURL,
+		userAgent: userAgent,
 	}
 }
 
+func (c *Client) SetBaseURL(baseURL string) {
+	c.baseURL = baseURL
+}
+
+func (c *Client) SetUserAgent(userAgent string) {
+	c.userAgent = userAgent
+}
+
 func (c *Client) doRequest(req *http.Request) ([]byte, error) {
-	req.Header.Set("User-Agent", UserAgent)
+	req.Header.Set("User-Agent", c.userAgent)
 	req.SetBasicAuth(c.Username, c.Password)
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -49,7 +59,7 @@ func (c *Client) doRequest(req *http.Request) ([]byte, error) {
 }
 
 func (c *Client) ServerGetList() ([]models.Server, error) {
-	url := baseURL + "/server"
+	url := c.baseURL + "/server"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -74,7 +84,7 @@ func (c *Client) ServerGetList() ([]models.Server, error) {
 }
 
 func (c *Client) ServerGet(ip string) (*models.Server, error) {
-	url := fmt.Sprintf(baseURL+"/server/%s", ip)
+	url := fmt.Sprintf(c.baseURL+"/server/%s", ip)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -93,8 +103,8 @@ func (c *Client) ServerGet(ip string) (*models.Server, error) {
 	return &serverResp.Server, nil
 }
 
-func (s *Client) ServerSetName(ip, name string) error {
-	url := fmt.Sprintf(baseURL+"/server/%s", ip)
+func (c *Client) ServerSetName(ip, name string) error {
+	url := fmt.Sprintf(c.baseURL+"/server/%s", ip)
 
 	formData := neturl.Values{}
 	formData.Set("server_name", name)
@@ -105,24 +115,24 @@ func (s *Client) ServerSetName(ip, name string) error {
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	_, err = s.doRequest(req)
+	_, err = c.doRequest(req)
 	return err
 }
 
-func (s *Client) ServerReverse(ip string) error {
-	url := fmt.Sprintf(baseURL+"/server/%s/reversal", ip)
+func (c *Client) ServerReverse(ip string) error {
+	url := fmt.Sprintf(c.baseURL+"/server/%s/reversal", ip)
 
 	req, err := http.NewRequest("POST", url, nil)
 	if err != nil {
 		return err
 	}
 
-	_, err = s.doRequest(req)
+	_, err = c.doRequest(req)
 	return err
 }
 
 func (c *Client) KeyGetList() ([]models.Key, error) {
-	url := baseURL + "/key"
+	url := c.baseURL + "/key"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -147,7 +157,7 @@ func (c *Client) KeyGetList() ([]models.Key, error) {
 }
 
 func (c *Client) IPGetList() ([]models.IP, error) {
-	url := baseURL + "/ip"
+	url := c.baseURL + "/ip"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -172,7 +182,7 @@ func (c *Client) IPGetList() ([]models.IP, error) {
 }
 
 func (c *Client) RDnsGetList() ([]models.Rdns, error) {
-	url := baseURL + "/rdns"
+	url := c.baseURL + "/rdns"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
@@ -197,7 +207,7 @@ func (c *Client) RDnsGetList() ([]models.Rdns, error) {
 }
 
 func (c *Client) RDnsGet(ip string) (*models.Rdns, error) {
-	url := fmt.Sprintf(baseURL+"/rdns/%s", ip)
+	url := fmt.Sprintf(c.baseURL+"/rdns/%s", ip)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err

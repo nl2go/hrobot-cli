@@ -4,23 +4,18 @@ import (
 	"os"
 
 	"github.com/jedib0t/go-pretty/table"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-
-	"gitlab.com/nl2go/hrobot-cli/client"
-	"gitlab.com/nl2go/hrobot-cli/config"
 )
 
-func NewIPGetListCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
+func (app *RobotApp) NewIPGetListCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "ip:list",
 		Short: "Print list of IP's",
 		Long:  "Print list of IP's in the hetzner account",
 		Run: func(cmd *cobra.Command, args []string) {
-			robotClient := client.NewBasicAuthClient(cfg.User, cfg.Password)
-			ips, err := robotClient.IPGetList()
+			ips, err := app.client.IPGetList()
 			if err != nil {
-				logger.Errorln(err)
+				app.logger.Errorln(err)
 				return
 			}
 
