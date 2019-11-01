@@ -61,11 +61,12 @@ func NewRdnsGetCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
 			}
 
 			prompt := promptui.Select{
-				Label:     "Select reverse DNS entry",
-				Items:     rDnsList,
-				Searcher:  getRDnsSearcher(rDnsList),
-				Size:      10,
-				Templates: getRDnsSelectTemplates(),
+				Label:             "Select reverse DNS entry",
+				Items:             rDnsList,
+				Searcher:          getRDnsSearcher(rDnsList),
+				Size:              10,
+				Templates:         getRDnsSelectTemplates(),
+				StartInSearchMode: true,
 			}
 
 			choosenIdx, _, err := prompt.Run()

@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/jedib0t/go-pretty/table"
 	"github.com/manifoldco/promptui"
 	log "github.com/sirupsen/logrus"
@@ -64,11 +65,12 @@ func NewServerGetCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
 			}
 
 			prompt := promptui.Select{
-				Label:     "Select server",
-				Items:     servers,
-				Searcher:  getServerSearcher(servers),
-				Size:      10,
-				Templates: getServerSelectTemplates(),
+				Label:             "Select server",
+				Items:             servers,
+				Searcher:          getServerSearcher(servers),
+				Size:              10,
+				Templates:         getServerSelectTemplates(),
+				StartInSearchMode: true,
 			}
 
 			choosenIdx, _, err := prompt.Run()
@@ -78,7 +80,7 @@ func NewServerGetCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
 			}
 
 			choosenServer := servers[choosenIdx]
-			fmt.Println("Chosen server: ", choosenServer.ServerIP)
+			color.Cyan(fmt.Sprint("Chosen server: ", choosenServer.ServerIP))
 
 			// additional get as getting a single server returns more data
 			server, err := robotClient.ServerGet(choosenServer.ServerIP)
@@ -109,8 +111,7 @@ func NewServerReversalCmd(logger *log.Logger, cfg *config.Config) *cobra.Command
 	return &cobra.Command{
 		Use:   "server:reverse",
 		Short: "Revert single server order",
-		Long: `Revert single server order in hetzner account
-		server can be chosen interactively`,
+		Long:  `Revert single server order in hetzner account, server can be chosen interactively`,
 		Run: func(cmd *cobra.Command, args []string) {
 			robotClient := client.NewBasicAuthClient(cfg.User, cfg.Password)
 			servers, err := robotClient.ServerGetList()
@@ -134,20 +135,18 @@ func NewServerReversalCmd(logger *log.Logger, cfg *config.Config) *cobra.Command
 			}
 
 			choosenServer := servers[choosenIdx]
-			fmt.Println("Chosen server: ", choosenServer.ServerIP)
+			color.Cyan(fmt.Sprint("Chosen server: ", choosenServer.ServerIP))
 
 			confirmPrompt := promptui.Prompt{
 				Label:     fmt.Sprintf("Really reverse server %s (%s) ", choosenServer.ServerName, choosenServer.ServerIP),
 				IsConfirm: true,
 			}
 
-			confirmRes, err := confirmPrompt.Run()
-			if err != nil {
-				logger.Errorln("Prompt failed: ", err)
+			_, confirmErr := confirmPrompt.Run()
+			if confirmErr != nil {
+				logger.Errorln("Prompt failed: ", confirmErr)
 				return
 			}
-
-			fmt.Println("Your choice:", confirmRes)
 
 			reverseErr := robotClient.ServerReverse(choosenServer.ServerIP)
 			if reverseErr != nil {
@@ -155,17 +154,23 @@ func NewServerReversalCmd(logger *log.Logger, cfg *config.Config) *cobra.Command
 				return
 			}
 
-			fmt.Println("Server reversed successfully.")
+			color.Cyan("Server reversed successfully.")
 		},
 	}
 }
 
-func NewServerSetNamesEmptyCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
+func NewServerSetNameCmd(logger *log.Logger, cfg *config.Config) *cobra.Command {
 	return &cobra.Command{
-		Use:   "server:set-names-empty",
-		Short: "Sets name for all servers with empty name",
-		Long:  "Sets name for all servers with empty name in the hetzner account",
+		Use:   "server:set-name",
+		Short: "Sets name for selected servers",
+		Long:  "Sets name for selected servers in the hetzner account, servers can be chosen interactively",
 		Run: func(cmd *cobra.Command, args []string) {
+			var selectServers []models.Server
+
+			selectServers = append(selectServers, models.Server{
+				ServerName: "Done",
+			})
+
 			robotClient := client.NewBasicAuthClient(cfg.User, cfg.Password)
 			servers, err := robotClient.ServerGetList()
 			if err != nil {
@@ -173,33 +178,86 @@ func NewServerSetNamesEmptyCmd(logger *log.Logger, cfg *config.Config) *cobra.Co
 				return
 			}
 
-			var serversEmptyName []models.Server
 			for _, server := range servers {
-				if server.ServerName == "" {
-					serversEmptyName = append(serversEmptyName, server)
+				selectServers = append(selectServers, server)
+			}
+
+			choosenIdx := 1
+			var choosenServers []models.Server
+
+			for choosenIdx > 0 {
+				if len(choosenServers) > 0 {
+					color.Cyan("Servers  currently selected for renaming:")
+
+					t := table.NewWriter()
+					t.SetOutputMirror(os.Stdout)
+
+					t.AppendHeader(table.Row{"name", "ip"})
+
+					for _, chServ := range choosenServers {
+						t.AppendRow(table.Row{
+							chServ.ServerName,
+							chServ.ServerIP,
+						})
+					}
+
+					t.AppendFooter(table.Row{"Total", len(choosenServers)})
+					t.Render()
+				} else {
+					color.Cyan("No servers currently selected for renaming.")
+				}
+
+				prompt := promptui.Select{
+					Label:             "Choose servers for renaming",
+					Items:             selectServers,
+					Searcher:          getServerSearcher(selectServers),
+					Size:              10,
+					Templates:         getServerSelectTemplates(),
+					StartInSearchMode: true,
+				}
+
+				choosenIdx, _, err = prompt.Run()
+				if err != nil {
+					logger.Errorln("Prompt failed: ", err)
+					return
+				}
+
+				if choosenIdx > 0 {
+					choosenServer := selectServers[choosenIdx]
+					color.Cyan(fmt.Sprint("Chosen server: ", choosenServer.ServerIP))
+
+					selectedBefore := false
+					for _, chServ := range choosenServers {
+						if chServ.ServerIP == choosenServer.ServerIP {
+							selectedBefore = true
+						}
+					}
+
+					if selectedBefore {
+						logger.Infof("Server %s was selected already.")
+					} else {
+						choosenServers = append(choosenServers, choosenServer)
+						// remove chosen server from select list = re-slicing
+						selectServers = append(selectServers[:choosenIdx], selectServers[choosenIdx+1:]...)
+					}
 				}
 			}
 
-			if len(serversEmptyName) <= 0 {
-				logger.Println("No server with empty name found. Exiting.")
-				return
-			}
+			color.Cyan("Servers selected for renaming:")
 
 			t := table.NewWriter()
 			t.SetOutputMirror(os.Stdout)
 
-			t.AppendHeader(table.Row{"id", "ip", "datacenter"})
+			t.AppendHeader(table.Row{"name", "ip"})
 
-			for _, server := range serversEmptyName {
+			for _, chServ := range choosenServers {
 				t.AppendRow(table.Row{
-					server.ServerNumber,
-					server.ServerIP,
-					server.Dc,
+					chServ.ServerName,
+					chServ.ServerIP,
 				})
 			}
 
-			t.AppendFooter(table.Row{"", "Total", len(serversEmptyName)})
-			t.SetCaption("Servers with empty names")
+			t.AppendFooter(table.Row{"Total", len(choosenServers)})
 			t.Render()
 
 			prompt := promptui.Prompt{
@@ -213,41 +271,39 @@ func NewServerSetNamesEmptyCmd(logger *log.Logger, cfg *config.Config) *cobra.Co
 				return
 			}
 
-			fmt.Println("Chosen server prefix:", prefix)
+			color.Cyan(fmt.Sprint("Chosen server prefix: ", prefix))
 
 			tNames := table.NewWriter()
 			tNames.SetOutputMirror(os.Stdout)
 
-			tNames.AppendHeader(table.Row{"id", "ip", "datacenter", "new name"})
+			tNames.AppendHeader(table.Row{"id", "ip", "current name", "new name"})
 
-			for _, server := range serversEmptyName {
+			for _, server := range choosenServers {
 				tNames.AppendRow(table.Row{
 					server.ServerNumber,
 					server.ServerIP,
-					server.Dc,
+					server.ServerName,
 					generateServerName(server, prefix),
 				})
 			}
 
-			tNames.AppendFooter(table.Row{"", "", "Total", len(serversEmptyName)})
+			tNames.AppendFooter(table.Row{"", "", "Total", len(choosenServers)})
 			tNames.SetCaption("Servers with generated names")
 			tNames.Render()
 
 			confirmPrompt := promptui.Prompt{
-				Label:     fmt.Sprintf("Really set names as shown above for %d servers", len(serversEmptyName)),
+				Label:     fmt.Sprintf("Really set names as shown above for %d servers", len(choosenServers)),
 				IsConfirm: true,
 			}
 
-			confirmRes, err := confirmPrompt.Run()
-			if err != nil {
-				logger.Errorln("Prompt failed: ", err)
+			_, confirmErr := confirmPrompt.Run()
+			if confirmErr != nil {
+				logger.Errorln("Prompt failed: ", confirmErr)
 				return
 			}
 
-			fmt.Println("Your choice:", confirmRes)
-
-			for _, server := range serversEmptyName {
-				fmt.Println("Set server name for", server.ServerIP, "to", generateServerName(server, prefix), "...")
+			for _, server := range choosenServers {
+				color.Cyan(fmt.Sprint("Set server name for ", server.ServerIP, " to ", generateServerName(server, prefix), " ..."))
 				err := robotClient.ServerSetName(server.ServerIP, generateServerName(server, prefix))
 				if err != nil {
 					logger.Errorln(err)
@@ -306,7 +362,7 @@ func NewServerGenerateAnsibleInventoryCmd(logger *log.Logger, cfg *config.Config
 }
 
 func generateServerName(server models.Server, prefix string) string {
-	return fmt.Sprintf("%s-%s-%s-%d", prefix, strings.ToLower(server.Product), strings.ToLower(server.Dc), server.ServerNumber)
+	return fmt.Sprintf("%s-%s-hetzner-%s-%d", prefix, strings.ToLower(server.Product), strings.ToLower(server.Dc), server.ServerNumber)
 }
 
 func getServerSearcher(servers []models.Server) func(string, int) bool {
