@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/jedib0t/go-pretty/table"
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 )
 
@@ -36,5 +37,14 @@ func (app *RobotApp) NewKeyGetListCmd() *cobra.Command {
 			t.AppendFooter(table.Row{"", "", "Total", len(keys)})
 			t.Render()
 		},
+	}
+}
+
+func getKeySelectTemplates() *promptui.SelectTemplates {
+	return &promptui.SelectTemplates{
+		Label:    "{{ . }} ?",
+		Active:   "→ {{ .Name | green }} ({{ .Fingerprint | yellow }})",
+		Inactive: "  {{ .Name | cyan }} ({{ .Fingerprint | red }})",
+		Selected: "→ {{ .Name | cyan }}",
 	}
 }

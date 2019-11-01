@@ -53,32 +53,14 @@ func (app *RobotApp) NewServerGetCmd() *cobra.Command {
 		Long: `Print details of single server in hetzner account
 		server can be chosen interactively`,
 		Run: func(cmd *cobra.Command, args []string) {
-			servers, err := app.client.ServerGetList()
+			chosenServer, err := app.selectServer()
 			if err != nil {
 				app.logger.Errorln(err)
 				return
 			}
 
-			prompt := promptui.Select{
-				Label:             "Select server",
-				Items:             servers,
-				Searcher:          getServerSearcher(servers),
-				Size:              10,
-				Templates:         getServerSelectTemplates(),
-				StartInSearchMode: true,
-			}
-
-			choosenIdx, _, err := prompt.Run()
-			if err != nil {
-				app.logger.Errorln("Prompt failed: ", err)
-				return
-			}
-
-			choosenServer := servers[choosenIdx]
-			color.Cyan(fmt.Sprint("Chosen server: ", choosenServer.ServerIP))
-
 			// additional get as getting a single server returns more data
-			server, err := app.client.ServerGet(choosenServer.ServerIP)
+			server, err := app.client.ServerGet(chosenServer.ServerIP)
 			if err != nil {
 				app.logger.Errorln(err)
 				return
@@ -108,31 +90,14 @@ func (app *RobotApp) NewServerReversalCmd() *cobra.Command {
 		Short: "Revert single server order",
 		Long:  `Revert single server order in hetzner account, server can be chosen interactively`,
 		Run: func(cmd *cobra.Command, args []string) {
-			servers, err := app.client.ServerGetList()
+			chosenServer, err := app.selectServer()
 			if err != nil {
 				app.logger.Errorln(err)
 				return
 			}
 
-			prompt := promptui.Select{
-				Label:     "Select server",
-				Items:     servers,
-				Searcher:  getServerSearcher(servers),
-				Size:      10,
-				Templates: getServerSelectTemplates(),
-			}
-
-			choosenIdx, _, err := prompt.Run()
-			if err != nil {
-				app.logger.Errorln("Prompt failed: ", err)
-				return
-			}
-
-			choosenServer := servers[choosenIdx]
-			color.Cyan(fmt.Sprint("Chosen server: ", choosenServer.ServerIP))
-
 			confirmPrompt := promptui.Prompt{
-				Label:     fmt.Sprintf("Really reverse server %s (%s) ", choosenServer.ServerName, choosenServer.ServerIP),
+				Label:     fmt.Sprintf("Really reverse server %s (%s) ", chosenServer.ServerName, chosenServer.ServerIP),
 				IsConfirm: true,
 			}
 
@@ -142,7 +107,7 @@ func (app *RobotApp) NewServerReversalCmd() *cobra.Command {
 				return
 			}
 
-			_, reverseErr := app.client.ServerReverse(choosenServer.ServerIP)
+			_, reverseErr := app.client.ServerReverse(chosenServer.ServerIP)
 			if reverseErr != nil {
 				app.logger.Errorln("Error while reversing server:", reverseErr)
 				return
@@ -159,81 +124,10 @@ func (app *RobotApp) NewServerSetNameCmd() *cobra.Command {
 		Short: "Sets name for selected servers",
 		Long:  "Sets name for selected servers in the hetzner account, servers can be chosen interactively",
 		Run: func(cmd *cobra.Command, args []string) {
-			var selectServers []models.Server
-
-			selectServers = append(selectServers, models.Server{
-				ServerName: "Done",
-			})
-
-			servers, err := app.client.ServerGetList()
+			chosenServers, err := app.selectMultipleServers()
 			if err != nil {
 				app.logger.Errorln(err)
 				return
-			}
-
-			for _, server := range servers {
-				selectServers = append(selectServers, server)
-			}
-
-			choosenIdx := 1
-			var choosenServers []models.Server
-
-			for choosenIdx > 0 {
-				if len(choosenServers) > 0 {
-					color.Cyan("Servers  currently selected for renaming:")
-
-					t := table.NewWriter()
-					t.SetOutputMirror(os.Stdout)
-
-					t.AppendHeader(table.Row{"name", "ip"})
-
-					for _, chServ := range choosenServers {
-						t.AppendRow(table.Row{
-							chServ.ServerName,
-							chServ.ServerIP,
-						})
-					}
-
-					t.AppendFooter(table.Row{"Total", len(choosenServers)})
-					t.Render()
-				} else {
-					color.Cyan("No servers currently selected for renaming.")
-				}
-
-				prompt := promptui.Select{
-					Label:             "Choose servers for renaming",
-					Items:             selectServers,
-					Searcher:          getServerSearcher(selectServers),
-					Size:              10,
-					Templates:         getServerSelectTemplates(),
-					StartInSearchMode: true,
-				}
-
-				choosenIdx, _, err = prompt.Run()
-				if err != nil {
-					app.logger.Errorln("Prompt failed: ", err)
-					return
-				}
-
-				if choosenIdx > 0 {
-					choosenServer := selectServers[choosenIdx]
-					color.Cyan(fmt.Sprint("Chosen server: ", choosenServer.ServerIP))
-
-					selectedBefore := false
-					for _, chServ := range choosenServers {
-						if chServ.ServerIP == choosenServer.ServerIP {
-							selectedBefore = true
-						}
-					}
-
-					if selectedBefore {
-						app.logger.Infof("Server %s was selected already.", choosenServer.ServerIP)
-					} else {
-						choosenServers = append(choosenServers, choosenServer)
-						// remove chosen server from select list = re-slicing
-						selectServers = append(selectServers[:choosenIdx], selectServers[choosenIdx+1:]...)
-					}
-				}
 			}
 
 			color.Cyan("Servers selected for renaming:")
@@ -243,14 +137,14 @@ func (app *RobotApp) NewServerSetNameCmd() *cobra.Command {
 
 			t.AppendHeader(table.Row{"name", "ip"})
 
-			for _, chServ := range choosenServers {
+			for _, chServ := range chosenServers {
 				t.AppendRow(table.Row{
 					chServ.ServerName,
 					chServ.ServerIP,
 				})
 			}
 
-			t.AppendFooter(table.Row{"Total", len(choosenServers)})
+			t.AppendFooter(table.Row{"Total", len(chosenServers)})
 			t.Render()
 
 			prompt := promptui.Prompt{
@@ -271,7 +165,7 @@ func (app *RobotApp) NewServerSetNameCmd() *cobra.Command {
 
 			tNames.AppendHeader(table.Row{"id", "ip", "current name", "new name"})
 
-			for _, server := range choosenServers {
+			for _, server := range chosenServers {
 				tNames.AppendRow(table.Row{
 					server.ServerNumber,
 					server.ServerIP,
@@ -280,12 +174,12 @@ func (app *RobotApp) NewServerSetNameCmd() *cobra.Command {
 				})
 			}
 
-			tNames.AppendFooter(table.Row{"", "", "Total", len(choosenServers)})
+			tNames.AppendFooter(table.Row{"", "", "Total", len(chosenServers)})
 			tNames.SetCaption("Servers with generated names")
 			tNames.Render()
 
 			confirmPrompt := promptui.Prompt{
-				Label:     fmt.Sprintf("Really set names as shown above for %d servers", len(choosenServers)),
+				Label:     fmt.Sprintf("Really set names as shown above for %d servers", len(chosenServers)),
 				IsConfirm: true,
 			}
 
@@ -295,7 +189,7 @@ func (app *RobotApp) NewServerSetNameCmd() *cobra.Command {
 				return
 			}
 
-			for _, server := range choosenServers {
+			for _, server := range chosenServers {
 				color.Cyan(fmt.Sprint("Set server name for ", server.ServerIP, " to ", generateServerName(server, prefix), " ..."))
 
 				input := &models.ServerSetNameInput{
@@ -308,6 +202,127 @@ func (app *RobotApp) NewServerSetNameCmd() *cobra.Command {
 					continue
 				}
 			}
+		},
+	}
+}
+
+func (app *RobotApp) NewServerActivateRescueCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "server:rescue",
+		Short: "Activate rescue mode for single server",
+		Long:  `Activate rescue mode for single server in hetzner account, server can be chosen interactively`,
+		Run: func(cmd *cobra.Command, args []string) {
+			chosenServer, err := app.selectServer()
+			if err != nil {
+				app.logger.Errorln(err)
+				return
+			}
+
+			rescueOptions, rescueOptErr := app.client.BootRescueGet(chosenServer.ServerIP)
+			if rescueOptErr != nil {
+				app.logger.Errorln("Error while fetching rescue options:", rescueOptErr)
+				return
+			}
+
+			promptRescueOS := promptui.Select{
+				Label: "Select rescue operating system",
+				Items: rescueOptions.Os,
+				Size:  10,
+			}
+
+			chosenOSIdx, _, err := promptRescueOS.Run()
+			if err != nil {
+				app.logger.Errorln("Prompt failed: ", err)
+				return
+			}
+
+			chosenOS := rescueOptions.Os[chosenOSIdx]
+			color.Cyan(fmt.Sprint("Chosen OS: ", chosenOS))
+
+			promptRescueArch := promptui.Select{
+				Label: "Select rescue operating system architecture",
+				Items: rescueOptions.Arch,
+			}
+
+			chosenArchIdx, _, err := promptRescueArch.Run()
+			if err != nil {
+				app.logger.Errorln("Prompt failed: ", err)
+				return
+			}
+
+			chosenArch := rescueOptions.Arch[chosenArchIdx]
+			color.Cyan(fmt.Sprint("Chosen arch: ", chosenArch))
+
+			confirmPromptKey := promptui.Prompt{
+				Label:     fmt.Sprintf("Use SSH key for rescue system "),
+				IsConfirm: true,
+				Default:   "y",
+			}
+
+			useSSHKey := true
+			_, confirmKeyErr := confirmPromptKey.Run()
+			if confirmKeyErr != nil {
+				useSSHKey = false
+			}
+
+			var chosenKey models.Key
+			if useSSHKey {
+				keys, err := app.client.KeyGetList()
+				if err != nil {
+					app.logger.Errorln(err)
+					return
+				}
+
+				promptKey := promptui.Select{
+					Label:     "Select key",
+					Items:     keys,
+					Size:      10,
+					Templates: getKeySelectTemplates(),
+				}
+
+				chosenKeyIdx, _, err := promptKey.Run()
+				if err != nil {
+					app.logger.Errorln("Prompt failed: ", err)
+					return
+				}
+
+				chosenKey = keys[chosenKeyIdx]
+				color.Cyan(fmt.Sprint("Chosen key: ", chosenKey.Name, chosenKey.Fingerprint))
+			} else {
+				color.Cyan("Chosen to use password instead of key.")
+			}
+
+			confirmPrompt := promptui.Prompt{
+				Label:     fmt.Sprintf("Really activate rescue system and reboot server %s (%s) ", chosenServer.ServerName, chosenServer.ServerIP),
+				IsConfirm: true,
+			}
+
+			_, confirmErr := confirmPrompt.Run()
+			if confirmErr != nil {
+				app.logger.Errorln("Prompt failed: ", confirmErr)
+				return
+			}
+
+			input := &models.RescueSetInput{}
+			input = &models.RescueSetInput{
+				OS:            chosenOS,
+				Arch:          chosenArch,
+				AuthorizedKey: chosenKey.Fingerprint,
+			}
+
+			fmt.Println(input)
+
+			rescue, err := app.client.BootRescueSet(chosenServer.ServerIP, input)
+			if err != nil {
+				app.logger.Errorln("Error while activating rescue system:", err)
+				return
+			}
+
+			if !useSSHKey {
+				color.Cyan(fmt.Sprintf("Password for accessing rescue mode: %s", rescue.Password))
+			}
+
+			color.Cyan("Rescue mode successfully activated.")
 		},
 	}
 }
@@ -358,6 +373,113 @@ func (app *RobotApp) NewServerGenerateAnsibleInventoryCmd() *cobra.Command {
 	}
 }
 
+func (app *RobotApp) selectServer() (*models.Server, error) {
+	servers, err := app.client.ServerGetList()
+	if err != nil {
+		return nil, err
+	}
+
+	prompt := promptui.Select{
+		Label:             "Select server",
+		Items:             servers,
+		Searcher:          getServerSearcher(servers),
+		Size:              10,
+		Templates:         getServerSelectTemplates(),
+		StartInSearchMode: true,
+	}
+
+	chosenIdx, _, err := prompt.Run()
+	if err != nil {
+		app.logger.Errorln("Prompt failed: ", err)
+		return nil, err
+	}
+
+	chosenServer := servers[chosenIdx]
+	color.Cyan(fmt.Sprint("Chosen server: ", chosenServer.ServerIP))
+
+	return &chosenServer, nil
+}
+
+func (app *RobotApp) selectMultipleServers() ([]models.Server, error) {
+	var selectServers []models.Server
+
+	selectServers = append(selectServers, models.Server{
+		ServerName: "Done",
+	})
+
+	servers, err := app.client.ServerGetList()
+	if err != nil {
+		return []models.Server{}, err
+	}
+
+	for _, server := range servers {
+		selectServers = append(selectServers, server)
+	}
+
+	chosenIdx := 1
+	var chosenServers []models.Server
+
+	for chosenIdx > 0 {
+		if len(chosenServers) > 0 {
+			color.Cyan("Servers  currently selected:")
+
+			t := table.NewWriter()
+			t.SetOutputMirror(os.Stdout)
+
+			t.AppendHeader(table.Row{"name", "ip"})
+
+			for _, chServ := range chosenServers {
+				t.AppendRow(table.Row{
+					chServ.ServerName,
+					chServ.ServerIP,
+				})
+			}
+
+			t.AppendFooter(table.Row{"Total", len(chosenServers)})
+			t.Render()
+		} else {
+			color.Cyan("No servers currently selected.")
+		}
+
+		prompt := promptui.Select{
+			Label:             "Choose servers",
+			Items:             selectServers,
+			Searcher:          getServerSearcher(selectServers),
+			Size:              10,
+			Templates:         getServerSelectTemplates(),
+			StartInSearchMode: true,
+		}
+
+		chosenIdx, _, err = prompt.Run()
+		if err != nil {
+			app.logger.Errorln("Prompt failed: ", err)
+			return []models.Server{}, err
+		}
+
+		if chosenIdx > 0 {
+			chosenServer := selectServers[chosenIdx]
+			color.Cyan(fmt.Sprint("Chosen server: ", chosenServer.ServerIP))
+
+			selectedBefore := false
+			for _, chServ := range chosenServers {
+				if chServ.ServerIP == chosenServer.ServerIP {
+					selectedBefore = true
+				}
+			}
+
+			if selectedBefore {
+				app.logger.Infof("Server %s was selected already.", chosenServer.ServerIP)
+			} else {
+				chosenServers = append(chosenServers, chosenServer)
+				// remove chosen server from select list = re-slicing
+				selectServers = append(selectServers[:chosenIdx], selectServers[chosenIdx+1:]...)
+			}
+		}
+	}
+
+	return chosenServers, nil
+}
+
 func generateServerName(server models.Server, prefix string) string {
 	return fmt.Sprintf("%s-%s-hetzner-%s-%d", prefix, strings.ToLower(server.Product), strings.ToLower(server.Dc), server.ServerNumber)
 }
@@ -377,7 +499,7 @@ func getServerSearcher(servers []models.Server) func(string, int) bool {
 
 func getServerSelectTemplates() *promptui.SelectTemplates {
 	return &promptui.SelectTemplates{
-		Label:    "{{ . }}?",
+		Label:    "{{ . }} ?",
 		Active:   "→ {{ .ServerName | green }} ({{ .ServerIP | yellow }} - {{ .Product | yellow }} - {{ .Dc | yellow }})",
 		Inactive: "  {{ .ServerName | cyan }} ({{ .ServerIP | red }} - {{ .Product | blue }} - {{ .Dc | green }})",
 		Selected: "→ {{ .ServerName | cyan }}",

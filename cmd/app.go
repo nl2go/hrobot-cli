@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"gitlab.com/newsletter2go/hrobot-cli/config"
-	"gitlab.com/newsletter2go/hrobot-go"
+	client "gitlab.com/newsletter2go/hrobot-go"
 )
 
 const version = "1.0.0"
@@ -47,6 +47,7 @@ func (app *RobotApp) NewRootCommand(logger *log.Logger, cfg *config.Config) *cob
 	rootCmd.AddCommand(app.NewServerGetCmd())
 	rootCmd.AddCommand(app.NewServerReversalCmd())
 	rootCmd.AddCommand(app.NewServerSetNameCmd())
+	rootCmd.AddCommand(app.NewServerActivateRescueCmd())
 	rootCmd.AddCommand(app.NewServerGenerateAnsibleInventoryCmd())
 	rootCmd.AddCommand(app.NewKeyGetListCmd())
 	rootCmd.AddCommand(app.NewIPGetListCmd())
