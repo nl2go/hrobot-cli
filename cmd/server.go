@@ -318,11 +318,21 @@ func (app *RobotApp) NewServerActivateRescueCmd() *cobra.Command {
 				return
 			}
 
+			resetInput := &models.ResetSetInput{
+				Type: models.ResetTypeHardware,
+			}
+
+			_, resetErr := app.client.ResetSet(chosenServer.ServerIP, resetInput)
+			if resetErr != nil {
+				app.logger.Errorln("Error while rebooting server:", resetErr)
+				return
+			}
+
 			if !useSSHKey {
 				color.Cyan(fmt.Sprintf("Password for accessing rescue mode: %s", rescue.Password))
 			}
 
-			color.Cyan("Rescue mode successfully activated.")
+			color.Cyan("Rescue mode successfully activated and server rebooted.")
 		},
 	}
 }
