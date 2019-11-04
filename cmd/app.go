@@ -8,7 +8,7 @@ import (
 	client "gitlab.com/newsletter2go/hrobot-go"
 )
 
-const version = "0.0.0"
+const version = "0.1.0"
 const userAgent = "hrobot-cli/" + version
 
 type RobotApp struct {
