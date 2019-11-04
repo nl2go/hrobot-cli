@@ -36,7 +36,7 @@ func (app *RobotApp) NewRdnsGetListCmd() *cobra.Command {
 				})
 			}
 
-			t.AppendFooter(table.Row{"", "", "Total", len(rdnsList)})
+			t.AppendFooter(table.Row{"Total", len(rdnsList)})
 			t.Render()
 		},
 	}

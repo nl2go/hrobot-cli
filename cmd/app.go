@@ -5,7 +5,6 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"gitlab.com/newsletter2go/hrobot-cli/config"
 	client "gitlab.com/newsletter2go/hrobot-go"
 )
 
@@ -14,30 +13,28 @@ const userAgent = "hrobot-cli/" + version
 
 type RobotApp struct {
 	logger *log.Logger
-	cfg    *config.Config
 	client client.RobotClient
 }
 
-func NewRobotApp(logger *log.Logger, cfg *config.Config) *RobotApp {
-	robotClient := client.NewBasicAuthClient(cfg.User, cfg.Password)
+func NewRobotApp(robotClient client.RobotClient, logger *log.Logger) *RobotApp {
+	//robotClient := client.NewBasicAuthClient(cfg.User, cfg.Password)
 	robotClient.SetUserAgent(userAgent)
 
 	return &RobotApp{
 		logger: logger,
-		cfg:    cfg,
 		client: robotClient,
 	}
 }
 
 func (app *RobotApp) Run() error {
-	rootCmd := app.NewRootCommand(app.logger, app.cfg)
+	rootCmd := app.NewRootCommand(app.logger)
 	rootCmd.SetErr(app.logger.Out)
 
 	err := rootCmd.Execute()
 	return err
 }
 
-func (app *RobotApp) NewRootCommand(logger *log.Logger, cfg *config.Config) *cobra.Command {
+func (app *RobotApp) NewRootCommand(logger *log.Logger) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "hrobot-cli",
 		Short: "CLI application for the hetzner robot API",

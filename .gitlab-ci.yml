@@ -1,0 +1,22 @@
+image: docker:latest
+
+stages:
+    - test
+    - build-image
+
+test:
+    image: golang:latest
+    stage: test
+    script:
+        - make cover
+    coverage: '/total:\s*\(statements\)\s*\d+.\d+\%/'
+
+build-image:
+    image: docker:latest
+    services:
+        - docker:dind
+    stage: build-image
+    script:
+        - docker login -u "gitlab-ci-token" -p "$CI_JOB_TOKEN" $CI_REGISTRY
+        - docker build --pull --tag "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG" .
+        - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"

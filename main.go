@@ -8,6 +8,7 @@ import (
 
 	"gitlab.com/newsletter2go/hrobot-cli/cmd"
 	"gitlab.com/newsletter2go/hrobot-cli/config"
+	client "gitlab.com/newsletter2go/hrobot-go"
 )
 
 func main() {
@@ -19,7 +20,8 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	hrobotApp := cmd.NewRobotApp(log.StandardLogger(), &cfg)
+	robotClient := client.NewBasicAuthClient(cfg.User, cfg.Password)
+	hrobotApp := cmd.NewRobotApp(robotClient, log.StandardLogger())
 	if err := hrobotApp.Run(); err != nil {
 		log.Errorln(err)
 		os.Exit(1)

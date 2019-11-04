@@ -1,3 +1,4 @@
 hrobot-cli
 coverage.out
 bin/
+*-account.env
