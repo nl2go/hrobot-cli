@@ -8,7 +8,7 @@ import (
 	client "gitlab.com/newsletter2go/hrobot-go"
 )
 
-const version = "1.0.0"
+const version = "0.0.0"
 const userAgent = "hrobot-cli/" + version
 
 type RobotApp struct {
@@ -17,7 +17,6 @@ type RobotApp struct {
 }
 
 func NewRobotApp(robotClient client.RobotClient, logger *log.Logger) *RobotApp {
-	//robotClient := client.NewBasicAuthClient(cfg.User, cfg.Password)
 	robotClient.SetUserAgent(userAgent)
 
 	return &RobotApp{
