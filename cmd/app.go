@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
@@ -36,7 +38,7 @@ func (app *RobotApp) Run() error {
 func (app *RobotApp) NewRootCommand(logger *log.Logger) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "hrobot-cli",
-		Short: "CLI application for the hetzner robot API",
+		Short: fmt.Sprintf("CLI application for the Hetzner Robot API - version %s", version),
 	}
 
 	rootCmd.AddCommand(app.NewServerGetListCmd())
@@ -50,6 +52,18 @@ func (app *RobotApp) NewRootCommand(logger *log.Logger) *cobra.Command {
 	rootCmd.AddCommand(app.NewIPGetListCmd())
 	rootCmd.AddCommand(app.NewRdnsGetListCmd())
 	rootCmd.AddCommand(app.NewRdnsGetCmd())
+	rootCmd.AddCommand(app.NewVersionCmd())
 
 	return rootCmd
+}
+
+func (app *RobotApp) NewVersionCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "version",
+		Short: "Print the version number of hrobot-cli",
+		Long:  `All software has versions. This is hrobot-cli's`,
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println(fmt.Sprintf("Hetzner Robot Webservice command line interface version: %s", version))
+		},
+	}
 }
