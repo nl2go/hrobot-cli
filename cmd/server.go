@@ -337,6 +337,44 @@ func (app *RobotApp) NewServerActivateRescueCmd() *cobra.Command {
 	}
 }
 
+func (app *RobotApp) NewServerResetCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "server:reset",
+		Short: "Reset single server (hardware reset)",
+		Long:  `Reset single server in hetzner account using hardware reset, server can be chosen interactively`,
+		Run: func(cmd *cobra.Command, args []string) {
+			chosenServer, err := app.selectServer()
+			if err != nil {
+				app.logger.Errorln(err)
+				return
+			}
+
+			confirmPrompt := promptui.Prompt{
+				Label:     fmt.Sprintf("Really reset server %s (%s) ", chosenServer.ServerName, chosenServer.ServerIP),
+				IsConfirm: true,
+			}
+
+			_, confirmErr := confirmPrompt.Run()
+			if confirmErr != nil {
+				app.logger.Errorln("Prompt failed: ", confirmErr)
+				return
+			}
+
+			resetInput := &models.ResetSetInput{
+				Type: models.ResetTypeHardware,
+			}
+
+			_, resetErr := app.client.ResetSet(chosenServer.ServerIP, resetInput)
+			if resetErr != nil {
+				app.logger.Errorln("Error while rebooting server:", resetErr)
+				return
+			}
+
+			color.Cyan("Server rebooted successfully.")
+		},
+	}
+}
+
 func (app *RobotApp) NewServerGenerateAnsibleInventoryCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "server:gen-ansible-inv",

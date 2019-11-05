@@ -44,6 +44,7 @@ func (app *RobotApp) NewRootCommand(logger *log.Logger) *cobra.Command {
 	rootCmd.AddCommand(app.NewServerReversalCmd())
 	rootCmd.AddCommand(app.NewServerSetNameCmd())
 	rootCmd.AddCommand(app.NewServerActivateRescueCmd())
+	rootCmd.AddCommand(app.NewServerResetCmd())
 	rootCmd.AddCommand(app.NewServerGenerateAnsibleInventoryCmd())
 	rootCmd.AddCommand(app.NewKeyGetListCmd())
 	rootCmd.AddCommand(app.NewIPGetListCmd())
