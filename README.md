@@ -31,6 +31,12 @@ Afterwards you can run it with:
 
     docker run -it --env-file=sample.env hrobot-cli:latest
 
+## Run latest version in docker using pre-built docker image
+
+Run latest version from docker registry:
+
+    docker run -it --env-file=sample.env registry.gitlab.com/newsletter2go/hrobot-cli:v0-1-1
+
 ## Features & overview
 
 Currently implemented commands are:
