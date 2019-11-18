@@ -1,5 +1,7 @@
 # hrobot-cli: Command-line interface for Hetzner Robot Webservice
 
+![Coverage](https://gitlab.com/newsletter2go/hrobot-cli/badges/master/coverage.svg)
+
 `hrobot-cli` is a command-line interface for interacting with the [Hetzner Robot API](https://robot.your-server.de/doc/webservice/en.html).
 
 ## Set environment variables for robot webservice credentials
