@@ -224,9 +224,11 @@ func (app *RobotApp) NewServerActivateRescueCmd() *cobra.Command {
 				return
 			}
 
+			selectOs := rescueOptions.Os.([]string)
+
 			promptRescueOS := promptui.Select{
 				Label: "Select rescue operating system",
-				Items: rescueOptions.Os,
+				Items: selectOs,
 				Size:  10,
 			}
 
@@ -236,12 +238,14 @@ func (app *RobotApp) NewServerActivateRescueCmd() *cobra.Command {
 				return
 			}
 
-			chosenOS := rescueOptions.Os[chosenOSIdx]
+			chosenOS := selectOs[chosenOSIdx]
 			color.Cyan(fmt.Sprint("Chosen OS: ", chosenOS))
+
+			selectArch := rescueOptions.Arch.([]int)
 
 			promptRescueArch := promptui.Select{
 				Label: "Select rescue operating system architecture",
-				Items: rescueOptions.Arch,
+				Items: selectArch,
 			}
 
 			chosenArchIdx, _, err := promptRescueArch.Run()
@@ -250,7 +254,7 @@ func (app *RobotApp) NewServerActivateRescueCmd() *cobra.Command {
 				return
 			}
 
-			chosenArch := rescueOptions.Arch[chosenArchIdx]
+			chosenArch := selectArch[chosenArchIdx]
 			color.Cyan(fmt.Sprint("Chosen arch: ", chosenArch))
 
 			confirmPromptKey := promptui.Prompt{

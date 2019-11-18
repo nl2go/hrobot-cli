@@ -34,10 +34,10 @@ func (m *MockRobotClient) EXPECT() *MockRobotClientMockRecorder {
 }
 
 // BootRescueGet mocks base method
-func (m *MockRobotClient) BootRescueGet(arg0 string) (*models.RescueOptions, error) {
+func (m *MockRobotClient) BootRescueGet(arg0 string) (*models.Rescue, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BootRescueGet", arg0)
-	ret0, _ := ret[0].(*models.RescueOptions)
+	ret0, _ := ret[0].(*models.Rescue)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -49,10 +49,10 @@ func (mr *MockRobotClientMockRecorder) BootRescueGet(arg0 interface{}) *gomock.C
 }
 
 // BootRescueSet mocks base method
-func (m *MockRobotClient) BootRescueSet(arg0 string, arg1 *models.RescueSetInput) (*models.RescueValues, error) {
+func (m *MockRobotClient) BootRescueSet(arg0 string, arg1 *models.RescueSetInput) (*models.Rescue, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BootRescueSet", arg0, arg1)
-	ret0, _ := ret[0].(*models.RescueValues)
+	ret0, _ := ret[0].(*models.Rescue)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
