@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	client "gitlab.com/newsletter2go/hrobot-go"
+	client "github.com/nl2go/hrobot-go"
 )
 
 const version = "0.1.1"

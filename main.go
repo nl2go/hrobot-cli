@@ -6,9 +6,9 @@ import (
 	"github.com/kelseyhightower/envconfig"
 	log "github.com/sirupsen/logrus"
 
-	"gitlab.com/newsletter2go/hrobot-cli/cmd"
-	"gitlab.com/newsletter2go/hrobot-cli/config"
-	client "gitlab.com/newsletter2go/hrobot-go"
+	"github.com/nl2go/hrobot-cli/cmd"
+	"github.com/nl2go/hrobot-cli/config"
+	client "github.com/nl2go/hrobot-go"
 )
 
 func main() {

@@ -9,7 +9,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"gitlab.com/newsletter2go/hrobot-go/models"
+	"github.com/nl2go/hrobot-go/models"
 )
 
 func (app *RobotApp) NewRdnsGetListCmd() *cobra.Command {

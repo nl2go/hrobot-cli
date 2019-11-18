@@ -37,7 +37,7 @@ Afterwards you can run it with:
 
 Run latest version from docker registry:
 
-    docker run -it --env-file=sample.env registry.gitlab.com/newsletter2go/hrobot-cli:v0-1-1
+    docker run -it --env-file=sample.env registry.github.com/nl2go/hrobot-cli:v0-1-1
 
 ## Features & overview
 

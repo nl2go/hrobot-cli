@@ -84,10 +84,10 @@ github.com/tidwall/pretty v1.0.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhV
 github.com/tsenart/deadcode v0.0.0-20160724212837-210d2dc333e9/go.mod h1:q+QjxYvZ+fpjMXqs+XEriussHjSYqeXVnAdSV1tkMYk=
 github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8/go.mod h1:VFNgLljTbGfSG7qAOspJ7OScBnGdDN/yBr0sguwnwf0=
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
-gitlab.com/newsletter2go/hrobot-go v0.0.0-20191104120400-a0eafd70b6df h1:K1nySZybJB1pvxmSVfx2eHCj1AY1CGgLvhnkOcCa8Uc=
-gitlab.com/newsletter2go/hrobot-go v0.0.0-20191104120400-a0eafd70b6df/go.mod h1:7P5Kdp+gQrvL0+Ajd9Rk5kr+69sp3QlcheUHtJkD6bc=
-gitlab.com/newsletter2go/hrobot-go v0.1.1 h1:q/qCJhoFXvXJcko1XJxXxWc7HKoe2ndcgB5em49hFB8=
-gitlab.com/newsletter2go/hrobot-go v0.1.1/go.mod h1:7P5Kdp+gQrvL0+Ajd9Rk5kr+69sp3QlcheUHtJkD6bc=
+github.com/nl2go/hrobot-go v0.0.0-20191104120400-a0eafd70b6df h1:K1nySZybJB1pvxmSVfx2eHCj1AY1CGgLvhnkOcCa8Uc=
+github.com/nl2go/hrobot-go v0.0.0-20191104120400-a0eafd70b6df/go.mod h1:7P5Kdp+gQrvL0+Ajd9Rk5kr+69sp3QlcheUHtJkD6bc=
+github.com/nl2go/hrobot-go v0.1.1 h1:q/qCJhoFXvXJcko1XJxXxWc7HKoe2ndcgB5em49hFB8=
+github.com/nl2go/hrobot-go v0.1.1/go.mod h1:7P5Kdp+gQrvL0+Ajd9Rk5kr+69sp3QlcheUHtJkD6bc=
 go.mongodb.org/mongo-driver v1.0.3 h1:GKoji1ld3tw2aC+GX1wbr/J2fX13yNacEYoJ8Nhr0yU=
 go.mongodb.org/mongo-driver v1.0.3/go.mod h1:u7ryQJ+DOzQmeO7zB6MHyr8jkEQvC8vH7qLUO4lqsUM=
 golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=

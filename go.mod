@@ -1,4 +1,4 @@
-module gitlab.com/newsletter2go/hrobot-cli
+module github.com/nl2go/hrobot-cli
 
 go 1.13
 
@@ -13,7 +13,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.5 // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.5
-	gitlab.com/newsletter2go/hrobot-go v0.1.1
+	github.com/nl2go/hrobot-go v0.1.1
 	golang.org/x/tools v0.0.0-20191031220737-6d8f1af9ccc0 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15
 )

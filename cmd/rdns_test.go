@@ -5,9 +5,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	. "gopkg.in/check.v1"
 
-	"gitlab.com/newsletter2go/hrobot-cli/cmd"
-	"gitlab.com/newsletter2go/hrobot-cli/test/mock"
-	"gitlab.com/newsletter2go/hrobot-go/models"
+	"github.com/nl2go/hrobot-cli/cmd"
+	"github.com/nl2go/hrobot-cli/test/mock"
+	"github.com/nl2go/hrobot-go/models"
 )
 
 func (s *AppSuite) TestRdnsListCommandEmptyList(c *C) {

@@ -10,7 +10,7 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
-	"gitlab.com/newsletter2go/hrobot-go/models"
+	"github.com/nl2go/hrobot-go/models"
 )
 
 func (app *RobotApp) NewServerGetListCmd() *cobra.Command {
@@ -309,8 +309,6 @@ func (app *RobotApp) NewServerActivateRescueCmd() *cobra.Command {
 				Arch:          chosenArch,
 				AuthorizedKey: chosenKey.Fingerprint,
 			}
-
-			fmt.Println(input)
 
 			rescue, err := app.client.BootRescueSet(chosenServer.ServerIP, input)
 			if err != nil {

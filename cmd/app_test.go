@@ -9,8 +9,8 @@ import (
 	"github.com/spf13/cobra"
 	. "gopkg.in/check.v1"
 
-	"gitlab.com/newsletter2go/hrobot-cli/cmd"
-	"gitlab.com/newsletter2go/hrobot-cli/test/mock"
+	"github.com/nl2go/hrobot-cli/cmd"
+	"github.com/nl2go/hrobot-cli/test/mock"
 )
 
 // Hook up gocheck into the "go test" runner.
