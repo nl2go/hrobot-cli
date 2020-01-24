@@ -81,6 +81,6 @@ func (s *AppSuite) TestServerGenerateAnsibleInventoryCommandSuccess(c *C) {
 	rootCmd := app.NewRootCommand(log.StandardLogger())
 	rootCmd.SetErr(log.StandardLogger().Out)
 
-	_, err := executeCommand(rootCmd, "server:gen-ansible-inv")
+	_, err := executeCommand(rootCmd, "server:ansible-inv")
 	c.Assert(err, IsNil)
 }

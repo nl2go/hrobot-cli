@@ -379,7 +379,7 @@ func (app *RobotApp) NewServerResetCmd() *cobra.Command {
 
 func (app *RobotApp) NewServerGenerateAnsibleInventoryCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "server:gen-ansible-inv",
+		Use:   "server:ansible-inv",
 		Short: "Generates ansible inventory from server list",
 		Long:  "Generates ansible inventory from servers in the hetzner account",
 		Run: func(cmd *cobra.Command, args []string) {
