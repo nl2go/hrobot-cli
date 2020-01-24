@@ -51,7 +51,7 @@ for the tests need to be updated. This can be done by running the following comm
 Currently implemented commands are:
 
 ```
-CLI application for the hetzner robot API
+CLI application for the Hetzner Robot API - version 0.1.1
 
 Usage:
   hrobot-cli [command]
@@ -66,8 +66,10 @@ Available Commands:
   server:get             Print single server
   server:list            Print list of servers
   server:rescue          Activate rescue mode for single server
+  server:reset           Reset single server (hardware reset)
   server:reverse         Revert single server order
   server:set-name        Sets name for selected servers
+  version                Print the version number of hrobot-cli
 
 Flags:
   -h, --help   help for hrobot-cli
