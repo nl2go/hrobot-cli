@@ -224,12 +224,18 @@ func (app *RobotApp) NewServerActivateRescueCmd() *cobra.Command {
 				return
 			}
 
-			selectOs := rescueOptions.Os.([]string)
+			selectOsItems := rescueOptions.Os.([]interface{})
 
 			promptRescueOS := promptui.Select{
 				Label: "Select rescue operating system",
-				Items: selectOs,
+				Items: selectOsItems,
 				Size:  10,
+			}
+
+			// convert interface to string
+			selectOs := make([]string, len(selectOsItems))
+			for i, v := range selectOsItems {
+				selectOs[i] = v.(string)
 			}
 
 			chosenOSIdx, _, err := promptRescueOS.Run()

@@ -63,6 +63,36 @@ func (mr *MockRobotClientMockRecorder) BootRescueSet(arg0, arg1 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BootRescueSet", reflect.TypeOf((*MockRobotClient)(nil).BootRescueSet), arg0, arg1)
 }
 
+// FailoverGet mocks base method
+func (m *MockRobotClient) FailoverGet(arg0 string) (*models.Failover, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FailoverGet", arg0)
+	ret0, _ := ret[0].(*models.Failover)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FailoverGet indicates an expected call of FailoverGet
+func (mr *MockRobotClientMockRecorder) FailoverGet(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FailoverGet", reflect.TypeOf((*MockRobotClient)(nil).FailoverGet), arg0)
+}
+
+// FailoverGetList mocks base method
+func (m *MockRobotClient) FailoverGetList() ([]models.Failover, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FailoverGetList")
+	ret0, _ := ret[0].([]models.Failover)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FailoverGetList indicates an expected call of FailoverGetList
+func (mr *MockRobotClientMockRecorder) FailoverGetList() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FailoverGetList", reflect.TypeOf((*MockRobotClient)(nil).FailoverGetList))
+}
+
 // GetVersion mocks base method
 func (m *MockRobotClient) GetVersion() string {
 	m.ctrl.T.Helper()

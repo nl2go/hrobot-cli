@@ -39,6 +39,13 @@ Run latest version from docker registry:
 
     docker run -it --env-file=sample.env registry.github.com/nl2go/hrobot-cli:v0-1-1
 
+## Update hrobot-go mocks
+
+This project uses `gomock`. When the hrobot-go library is upgraded to a new version, the mocks used 
+for the tests need to be updated. This can be done by running the following command:
+
+    mockgen -package mock github.com/nl2go/hrobot-go RobotClient > test/mock/mock_robot_client.go
+
 ## Features & overview
 
 Currently implemented commands are:
