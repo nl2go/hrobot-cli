@@ -57,19 +57,19 @@ Usage:
   hrobot-cli [command]
 
 Available Commands:
-  help                   Help about any command
-  ip:list                Print list of IP's
-  key:list               Print list of ssh keys
-  rdns:get               Print single reverse DNS entry
-  rdns:list              Print list of reverse DNS entries
-  server:gen-ansible-inv Generates ansible inventory from server list
-  server:get             Print single server
-  server:list            Print list of servers
-  server:rescue          Activate rescue mode for single server
-  server:reset           Reset single server (hardware reset)
-  server:reverse         Revert single server order
-  server:set-name        Sets name for selected servers
-  version                Print the version number of hrobot-cli
+  help               Help about any command
+  ip:list            Print list of IP's
+  key:list           Print list of ssh keys
+  rdns:get           Print single reverse DNS entry
+  rdns:list          Print list of reverse DNS entries
+  server:ansible-inv Generates ansible inventory from server list
+  server:get         Print single server
+  server:list        Print list of servers
+  server:rescue      Activate rescue mode for single server
+  server:reset       Reset single server (hardware reset)
+  server:reverse     Revert single server order
+  server:set-name    Sets name for selected servers
+  version            Print the version number of hrobot-cli
 
 Flags:
   -h, --help   help for hrobot-cli
