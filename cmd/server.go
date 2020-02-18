@@ -247,11 +247,17 @@ func (app *RobotApp) NewServerActivateRescueCmd() *cobra.Command {
 			chosenOS := selectOs[chosenOSIdx]
 			color.Cyan(fmt.Sprint("Chosen OS: ", chosenOS))
 
-			selectArch := rescueOptions.Arch.([]int)
+			selectArchItems := rescueOptions.Arch.([]interface{})
 
 			promptRescueArch := promptui.Select{
 				Label: "Select rescue operating system architecture",
-				Items: selectArch,
+				Items: selectArchItems,
+			}
+
+			// convert interface to int
+			selectArch := make([]int, len(selectArchItems))
+			for i, v := range selectArchItems {
+				selectArch[i] = int(v.(float64))
 			}
 
 			chosenArchIdx, _, err := promptRescueArch.Run()
