@@ -224,12 +224,18 @@ func (app *RobotApp) NewServerActivateRescueCmd() *cobra.Command {
 				return
 			}
 
-			selectOs := rescueOptions.Os.([]string)
+			selectOsItems := rescueOptions.Os.([]interface{})
 
 			promptRescueOS := promptui.Select{
 				Label: "Select rescue operating system",
-				Items: selectOs,
+				Items: selectOsItems,
 				Size:  10,
+			}
+
+			// convert interface to string
+			selectOs := make([]string, len(selectOsItems))
+			for i, v := range selectOsItems {
+				selectOs[i] = v.(string)
 			}
 
 			chosenOSIdx, _, err := promptRescueOS.Run()
@@ -241,11 +247,17 @@ func (app *RobotApp) NewServerActivateRescueCmd() *cobra.Command {
 			chosenOS := selectOs[chosenOSIdx]
 			color.Cyan(fmt.Sprint("Chosen OS: ", chosenOS))
 
-			selectArch := rescueOptions.Arch.([]int)
+			selectArchItems := rescueOptions.Arch.([]interface{})
 
 			promptRescueArch := promptui.Select{
 				Label: "Select rescue operating system architecture",
-				Items: selectArch,
+				Items: selectArchItems,
+			}
+
+			// convert interface to int
+			selectArch := make([]int, len(selectArchItems))
+			for i, v := range selectArchItems {
+				selectArch[i] = int(v.(float64))
 			}
 
 			chosenArchIdx, _, err := promptRescueArch.Run()
@@ -379,7 +391,7 @@ func (app *RobotApp) NewServerResetCmd() *cobra.Command {
 
 func (app *RobotApp) NewServerGenerateAnsibleInventoryCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "server:gen-ansible-inv",
+		Use:   "server:ansible-inv",
 		Short: "Generates ansible inventory from server list",
 		Long:  "Generates ansible inventory from servers in the hetzner account",
 		Run: func(cmd *cobra.Command, args []string) {
