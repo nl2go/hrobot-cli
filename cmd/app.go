@@ -52,6 +52,8 @@ func (app *RobotApp) NewRootCommand(logger *log.Logger) *cobra.Command {
 	rootCmd.AddCommand(app.NewIPGetListCmd())
 	rootCmd.AddCommand(app.NewRdnsGetListCmd())
 	rootCmd.AddCommand(app.NewRdnsGetCmd())
+	rootCmd.AddCommand(app.NewFailoverGetListCmd())
+	rootCmd.AddCommand(app.NewFailoverGetCmd())
 	rootCmd.AddCommand(app.NewVersionCmd())
 
 	return rootCmd
